@@ -1,0 +1,142 @@
+{% extends 'base.htm' %}
+{% load staticfiles %}
+{% block title %}configuration{% endblock %}
+{% block body_block %}
+        <form method="post" id="forms">{% csrf_token %}
+		<h1 class="heading1">Configuration Settings</h1>
+			<div class="mainContent">
+					{% if messages %}
+						<div class="mb-20">
+						{% for message in messages %}
+						<div {% if message.tags %} class="isa_{{ message.tags }}"{% endif %}>{{ message }}</div>
+						{% endfor %}
+						</div>
+					{% endif %}
+			<div  class="client_msg mb-20" id="client_msg"></div>
+			<div class="mb-20">
+				<div class="fieldLabel">Nexmo API Key<span class="handCursor"></span></div>
+				<div>
+					<input id="NKey"  type="text" name="NKey"  value="{{nxmo_conf.NKey}}" class="customTxtBox" />
+				</div>
+			</div>
+
+			<div class="mb-20">
+				<div class="fieldLabel">Nexmo Secret Key<span class="handCursor"></span></div>
+				<div>
+					<input id="NSecret" type="text"  name="NSecret" value="{{nxmo_conf.NSecret}}" class="customTxtBox" />
+					<span style="font-size:1em;display:none;" id="processing">We are validating API...<img src='{% static "nexmo-loader.gif" %}' /></span>
+				</div>
+				
+			</div>
+			
+			<div class="mb-20">
+				<div class="fieldLabel">Nexmo From Number<span class="handCursor"></span></div>
+				<div>
+					<input type="hidden" value="{{nxmo_conf.NUser}}" id="nexfrom" />
+					<select name="NexmoFrom" id="NexmoFrom" class="customTxtBox">
+						<option value=""> -- Select From Number -- </option>
+					</select>
+				</div>
+			</div>
+			
+			<div class="mb-20">
+				<div class="fieldLabel">Recipients Number<span class="handCursor"></span></div>
+				<div>
+					<input id="NRecv" type="text" name="NRecv" value="{{nxmo_conf.NRecv}}" class="customTxtBox" /> 
+				</div>
+			<div style="color:orange">Type number with country code.eg 1 248 xxxxx</div>
+			</div>
+			
+			
+			<div class="mb-20">
+				<div class="font16">Enable SMS 
+				{% if nxmo_conf.EnableSMS == '0' %}
+						<input id="EnableSMS"name="EnableSMS" type="checkbox" />
+					{%else%}
+						<input id="EnableSMS"name="EnableSMS" type="checkbox" checked="checked" />
+					{%endif%}
+				</div>
+			</div>
+			
+			<div class="mb-20">
+				<div class="fieldLabel">Username<span class="handCursor"></span></div>
+				<div>
+					<input id="UserName"name="UserName" type="text" value="{{nxmo_conf.username}}" class="customTxtBox" />
+				</div>
+			</div>
+			
+			<div class="mb-20">
+				<div class="fieldLabel">Password<span class="handCursor"></span></div>
+				<div>
+					<input id="password"name="password" type="password" class="customTxtBox" value="{{nxmo_conf.password}}" />
+				</div>
+			</div>
+			<div style="color:orange">This credentials update effects only this portal not to Nexmo official site.</div><br />
+			
+			<div><input type="submit" value="Save" class="blueBtn"></div
+			<div class="clear"></div>
+		</div>
+    </div>
+		</form>
+
+<script>
+	$(document).ready(function(){
+		var api = $('#NKey').val();
+		var secret = $('#NSecret').val();
+		$nexfrom = $('#nexfrom').val();
+		$error = true;
+		$('#NSecret').focusout(function() {
+				$('#processing').css('display','')
+				ajax_call()
+			});
+		
+		$("form").submit(function(e){
+			if($error == true) e.preventDefault();
+  		});
+
+		fill_dropdown(api, secret);
+	});
+	
+	function fill_dropdown(api, secret){
+		if(secret!='' && api!=''){
+			ajax_call()
+		}
+	}
+
+	function ajax_call(){
+		$nexfrom = $('#nexfrom').val()
+		$.ajax({
+				url: '/ajax_validator/',
+			    type: 'post', //this is the default though, you don't actually need to always mention it
+			    data: $( "form" ).serialize(),
+				success: function(data) {
+					$('#NexmoFrom').html("")
+					var obj = $.parseJSON(data)
+					if (obj.error == 'false'){
+						$error = false;
+						dataArray = obj.html.split(",")
+						data = '<option value=""> -- Select a From Number -- </option>'
+						$.each(dataArray, function(index, value) { 
+							$selected = ''
+							if(value==$nexfrom) $selected = 'selected="selected"'
+							
+							data+='<option value"'+value+'" '+$selected+'>'+value+'</option>'
+						});
+						$('#NexmoFrom').html(data)
+					}else{
+						$error = true;
+						$('#client_msg').html('<div class="isa_error">'+ obj.html+'</div>')
+					}
+				},
+				error: function(xhr,status,error) { 
+					$('#NexmoFrom').html("<option disabled selected> -- Select a From Number -- </option>")
+					if($.trim(error)!=""){alert(error)}
+				},
+				
+			}).done(function(){
+				$('#processing').css('display','none')
+			});
+	
+	}
+</script>
+{% endblock %}

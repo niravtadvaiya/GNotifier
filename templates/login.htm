@@ -1,0 +1,34 @@
+{% extends 'base.htm' %}
+{% load staticfiles %}
+{% block title %}Nexmo - Login{% endblock %}
+{% block body_block %}
+        <form method="post">{% csrf_token %}
+			<h1 class="heading1">Login</h1>
+			
+		<div class="mainContent">
+		{% if messages %}
+		<div class="mb-20">
+			{% for message in messages %}
+				<div {% if message.tags %} class="isa_{{ message.tags }}"{% endif %}>{{ message }}</div>
+			{% endfor %}
+		</div>
+		{% endif %}
+			<div class="mb-20">
+				<div class="fieldLabel">Username<span class="handCursor"></div>
+				<div>
+					<input id="NKey"  type="text" name="NKey"  class="customTxtBox"  />
+					
+				</div>
+			</div>
+			<div class="mb-20">
+				<div class="fieldLabel">Password <span class="handCursor"></span></div>
+				<div>
+					<input id="NSecret" type="password"  name="NSecret" class="customTxtBox" />
+				</div>
+			</div>
+			<div><input type="submit" value="Login" class="blueBtn"></div
+			<div class="clear"></div>
+		</div>
+    </div>
+		</form>
+{% endblock %}
