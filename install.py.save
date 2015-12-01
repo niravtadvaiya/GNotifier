@@ -3,27 +3,18 @@ import os
 import platform 
 import subprocess
 
-FILE_CREAT = 'start_gn_nexmo'
+FILE_CREAT = 'start_aws_nexmo'
 def pip_install():
         subprocess.call(['sudo pip install django==1.8.5'],shell=True)
         subprocess.call(['sudo pip install nexmo'],shell=True)
         subprocess.call(['sudo pip install httplib2'],shell=True)
 
-def create_startup(osx=''):
+def create_startup():
         global FILE_CREAT
         cwd = os.getcwd()
         file_content = '#!/bin/bash' + '\n'
-
-        file_content +='### BEGIN INIT INFO'
-        file_content +='# Provides:          start_gn_nexmo'
-        file_content +='# Required-Start:    $local_fs $network'
-        file_content +='# Required-Stop:     $local_fs'
-        file_content +='# Default-Start:     1 3 5'
-        file_content +='# Default-Stop:      0 1 6'
-        file_content +='# Short-Description: g-notifier'
-        file_content +='# Description:       nexmo startup script'
+        file_content += '# Defalt-Start: 1 3 5' + '\n'
         file_content += '# chkconfig: 2345 20 80' + '\n'
-        file_content +='### END INIT INFO'
         file_content += '. /etc/rc.d/init.d/functions' + '\n'
         file_content += 'python {0}/manage.py runserver 0.0.0.0:9033 --insecure &'.format(cwd)
         file_content += '\nexit 0'
@@ -34,16 +25,18 @@ def create_startup(osx=''):
         subprocess.call(['sudo chmod +x '+FILE_CREAT],shell=True)
         subprocess.call(['sudo /sbin/chkconfig --add '+FILE_CREAT],shell=True)
         subprocess.call(['sudo /sbin/chkconfig '+str(FILE_CREAT)+' on'],shell=True)
-        if osx == 'debian':
-            subprocess.call(['sudo update-rc.d '+str(FILE_CREAT)+' enable'],shell=True)
+        distro = platform.linux_distribution()[0].lower()
+        if distro == 'debian':
+          subprocess.call(['sudo chmod +x '+FILE_CREAT],shell=True)
+         
         return True
                 
-def install(cmd,osx=''):
+def install(cmd):
         linux_cmd = "sudo {0} ".format(cmd)
         subprocess.call([linux_cmd + ' update -y '],shell=True)
         subprocess.call([linux_cmd + ' install -y python-pip '],shell=True)
         pip_install()
-        create_startup(osx)
+        create_startup()
 
 def windows():
         os.system("pip install django==1.8.5")
@@ -80,7 +73,7 @@ if __name__ == '__main__':
                 sys.exit(0)
         distro = platform.linux_distribution()[0].lower()
         if distro in ['debian','ubuntu']:
-                        install('apt-get',distro)
+                        install('apt-get')
                         print "GNotifier alert installed successfully."
         if distro in ['centos linux','centos','fedora','redhat']:
                         install('yum')
