@@ -82,7 +82,7 @@ if __name__ == '__main__':
 			exit(0)
 		distro = platform.linux_distribution()[0].lower()
 		if os.geteuid() != 0:
-			print "This program need 'sudo'"
+			print "ERROR: This program need 'sudo'"
 			exit(1)
 
 		if distro in ['debian','ubuntu']:
