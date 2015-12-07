@@ -15,18 +15,18 @@ def create_startup(osx=''):
         cwd = os.getcwd()
         file_content = '#!/bin/bash' + '\n'
 
-        file_content +='### BEGIN INIT INFO'
-        file_content +='# Provides:          start_gn_nexmo'
-        file_content +='# Required-Start:    $local_fs $network'
-        file_content +='# Required-Stop:     $local_fs'
-        file_content +='# Default-Start:     1 3 5'
-        file_content +='# Default-Stop:      0 1 6'
-        file_content +='# Short-Description: g-notifier'
-        file_content +='# Description:       nexmo startup script'
-        file_content += '# chkconfig: 2345 20 80' + '\n'
-        file_content +='### END INIT INFO'
-        file_content += '. /etc/rc.d/init.d/functions' + '\n'
-        file_content += 'python {0}/manage.py runserver 0.0.0.0:9033 --insecure &'.format(cwd)
+        file_content +='\n### BEGIN INIT INFO'
+        file_content +='\n# Provides:          start_gn_nexmo'
+        file_content +='\n# Required-Start:    $local_fs $network'
+        file_content +='\n# Required-Stop:     $local_fs'
+        file_content +='\n# Default-Start:     2 3 4 5'
+        file_content +='\n# Default-Stop:      0 1 6'
+        file_content +='\n# Short-Description: g-notifier'
+        file_content +='\n# Description:       nexmo startup script'
+        file_content += '\n# chkconfig: 2345 20 80' + '\n'
+        file_content +='\n### END INIT INFO'
+        file_content += '\n. /etc/rc.d/init.d/functions' + '\n'
+        file_content += '\npython {0}/manage.py runserver 0.0.0.0:9033 --insecure &'.format(cwd)
         file_content += '\nexit 0'
         with open("/etc/init.d/"+FILE_CREAT,"wb") as f:
                 f.write(file_content)
@@ -38,6 +38,7 @@ def create_startup(osx=''):
         if osx == 'debian':
             subprocess.call(['sudo update-rc.d '+str(FILE_CREAT)+' enable'],shell=True)
         if osx == 'ubuntu':
+            print "Ubuntu found"
             subprocess.call(['sudo update-rc.d '+str(FILE_CREAT)+' defaults'],shell=True)
         return True
                 
