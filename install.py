@@ -75,22 +75,20 @@ def windows():
 
 
 if __name__ == '__main__':
-        get_current = os.getcwd()
+		get_current = os.getcwd()
+		if platform.system().lower() == "windows":
+			windows()
+			print "GNotifier alert installed successfully."
+			exit(0)
+		distro = platform.linux_distribution()[0].lower()
 		if os.geteuid() != 0:
 			print "This program need 'sudo'"
 			exit(1)
-        if platform.system().lower() == "windows":
-                import sys
-                windows()
-                print "GNotifier alert installed successfully."
-                sys.exit(0)
-        distro = platform.linux_distribution()[0].lower()
-        if distro in ['debian','ubuntu']:
-                        install('apt-get',distro)
-                        print "GNotifier alert installed successfully."
-        if distro in ['centos linux','centos','fedora','redhat']:
-                        install('yum')
-                        print "google alert installed successfully."
-        if distro == 'Arch Linux':
-                        arch_linux()
-        subprocess.call(['python {0}/manage.py runserver 0.0.0.0:9033 --insecure &'.format(get_current)],shell=True)
+
+		if distro in ['debian','ubuntu']:
+			install('apt-get',distro)
+			print "GNotifier alert installed successfully."
+		if distro in ['centos linux','centos','fedora','redhat']:
+			install('yum')
+			print "google alert installed successfully."
+		subprocess.call(['python {0}/manage.py runserver 0.0.0.0:9033 --insecure &'.format(get_current)],shell=True)
