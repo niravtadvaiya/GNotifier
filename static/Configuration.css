@@ -40,7 +40,7 @@ body, .body{
 	cursor:pointer;font-family:'Segoe UI';background: #0099c7;padding: 10px 15px; float:right; color: #fff;border: none;font-size: 16px;
 }
 
-.isa_info, .isa_success, .isa_warning, .isa_error {
+.isa_info, .isa_success, .isa_warning {
 margin: 10px 0px;
 padding:12px;
 }
@@ -58,10 +58,14 @@ padding:12px;
 }
 .isa_error {
     color: #D8000C;
-    background-color: #FFBABA;
 }
 .isa_info i, .isa_success i, .isa_warning i, .isa_error i {
     margin:10px 22px;
     font-size:2em;
     vertical-align:middle;
 } 
+
+
+label.error {
+    color: #D8000C;
+}

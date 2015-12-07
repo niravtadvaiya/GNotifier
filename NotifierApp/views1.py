@@ -19,6 +19,10 @@ from django import forms
 
 FILE_NAME = settings.BASE_DIR + '/.monitor.conf'
 
+
+class NexmoForm(forms.Form):
+    your_name = forms.CharField(max_length=100,widget=forms.TextInput(attrs={'class':'customTxtBox'}),required=True,error_messages={'required': 'Please enter the name.'})
+	
 @csrf_exempt
 def index(request):
 	if request.method != 'POST':
@@ -58,7 +62,6 @@ def settings(request):
 	
 	if request.method == 'POST':
 	  try:
-		error_dict = {''}
 		nxmo_conf = nexmo_config()
 		for k,v in nxmo_conf.iteritems():
 			if v is '':
@@ -67,8 +70,69 @@ def settings(request):
 		Error = False
 		recv = ''.join(request.POST['NRecv'].split())
 		recv = recv.replace('+','')
-		recv = recv.replace('-','')
+		
+		if (trim(request.POST['NKey']) is None or trim(request.POST['NKey']) == '') and trim(request.POST['NSecret']) is None or trim(request.POST['NSecret']) == '':
+			Error = True
+			messages.error(request,"Please enter the Nexmo Key and Secret.")
+			return render_to_response('settings.htm',{'nxmo_conf':nxmo_conf},context_instance=RequestContext(request))
+			
+		if trim(request.POST['NKey']) is None or trim(request.POST['NKey']) == '':
+			Error = True
+			messages.error(request,"Please enter the Nexmo Key.")
+			return render_to_response('settings.htm',{'nxmo_conf':nxmo_conf},context_instance=RequestContext(request))
+			
+		if trim(request.POST['NSecret']) is None or trim(request.POST['NSecret']) == '':
+			Error = True
+			messages.error(request,"Please enter the Nexmo Secret.")
+			return render_to_response('settings.htm',{'nxmo_conf':nxmo_conf},context_instance=RequestContext(request))
+			
+		if trim(request.POST['NSecret']) and trim(request.POST['NKey']):
+			try:
+				conn = nexmo.Client(key=str(request.POST['NKey']),secret=str(request.POST['NSecret']))
+				json_number =  conn.get_account_numbers()
+				from_number = json_number['numbers'][0]['msisdn']
+			except:
+				messages.error(request,"Please enter valid Nexmo Key and Secret.")
+				return render_to_response('settings.htm',{'nxmo_conf':nxmo_conf},context_instance=RequestContext(request))
+	
+		if trim(request.POST['NexmoFrom']) is None or trim(request.POST['NexmoFrom']) == '':
+			Error = True
+			messages.error(request,"Please select the From Number.")
+			
+		if trim(recv) is None or trim(recv) == '':
+			Error = True
+			messages.error(request,"Please enter the Recipients Number.")
+		
+		if trim(recv):
 
+			if not recv.isnumeric():
+				Error = True
+				messages.error(request,"Please enter a valid Recipients Number.")
+				
+			if len(trim(recv))<=10:
+				Error = True
+				messages.error(request,"Please enter a valid Recipients Number with country code.")
+				
+		if trim(request.POST['UserName']) is None or trim(request.POST['UserName']) == '':
+			Error = True
+			messages.error(request,"Please enter the Username.")
+
+		if trim(request.POST['password']) is None or trim(request.POST['password']) == '':
+			Error = True
+			messages.error(request,"Please enter the Password.")
+		
+		if trim(request.POST['UserName']).lower()=='admin':
+			Error = True
+			messages.error(request,"Please change the default Username.")
+			
+		if trim(request.POST['password']).lower()=='admin':
+			Error = True
+			messages.error(request,"Please change the default Password.")
+			
+		if Error == True:
+			return render_to_response('settings.htm',{'nxmo_conf':nxmo_conf},context_instance=RequestContext(request))
+
+			
 		from_number = request.POST['NexmoFrom']
 		myvar = ''
 		myvar +='api_key='+request.POST['NKey']+"\n"
@@ -155,26 +219,34 @@ def ajax_validator(request):
 	if 'logged_in' not in request.session:
 		return HttpResponse("you are not logged in")
 	
-	api_key = request.POST['NKey'].strip()
-	api_secret = request.POST['NSecret'].strip()
+	api_key = request.POST['NKey']
+	api_secret = request.POST['NSecret'] 
 	django_html = []
 	get_num  = None
-	if api_secret is not '' and api_key is not '':
-		try:
-			conn = nexmo.Client(key=str(api_key),secret=str(api_secret))
-			json_number =  conn.get_account_numbers()
-			from_number = json_number['numbers']
-			get_num = []
-			for from_number in json_number['numbers']:
-				if from_number['msisdn'].strip() is not None:
-					get_num.append(from_number['msisdn'])
-			
-			msisdn = ','.join(get_num)
-			django_html = {'error':'false','html':msisdn}
-			return HttpResponse(json.dumps(django_html))
-		except nexmo.AuthenticationError as err:
-			django_html = {'error':'true','html':"Please enter the authenticated API credentials."}
-			return HttpResponse(json.dumps(django_html))
-		except Exception as err:
-			django_html = {'error':'true','html':str(err)}
-			return HttpResponse(json.dumps(django_html))
+	if not api_key and  not api_secret:
+		django_html = {'error':'true','html':str('Please enter the Nexmo Key and Secret.')}
+		return HttpResponse(json.dumps(django_html))
+	if not api_key:
+		django_html = {'error':'true','html':str('Please enter the Nexmo Key.')}
+		return HttpResponse(json.dumps(django_html))
+	if not api_secret:
+		django_html = {'error':'true','html':str('Please enter the Nexmo Secret.')}
+		return HttpResponse(json.dumps(django_html))
+	try:
+		conn = nexmo.Client(key=str(api_key),secret=str(api_secret))
+		json_number =  conn.get_account_numbers()
+		from_number = json_number['numbers']
+		get_num = []
+		for from_number in json_number['numbers']:
+			if from_number['msisdn'].strip() is not None:
+				get_num.append(from_number['msisdn'])
+		
+		msisdn = ','.join(get_num)
+		django_html = {'error':'false','html':msisdn}
+		return HttpResponse(json.dumps(django_html))
+	except nexmo.AuthenticationError as err:
+		django_html = {'error':'true','html':"Please enter valid Nexmo Key and Secret."}
+		return HttpResponse(json.dumps(django_html))
+	except Exception as err:
+		django_html = {'error':'true','html':str(err)}
+		return HttpResponse(json.dumps(django_html))

@@ -2,37 +2,36 @@
 {% load staticfiles %}
 {% block title %}configuration{% endblock %}
 {% block body_block %}
-        <form method="post" id="forms">{% csrf_token %}
+        <form method="post" id="forms" novalidate="novalidate">{% csrf_token %}
 		<h1 class="heading1">Configuration Settings</h1>
-			<div class="mainContent">
-					{% if messages %}
-						<div class="mb-20">
-						{% for message in messages %}
-						<div {% if message.tags %} class="isa_{{ message.tags }}"{% endif %}>{{ message }}</div>
-						{% endfor %}
-						</div>
-					{% endif %}
-			<div  class="client_msg mb-20" id="client_msg"></div>
+		   <div class="mainContent">
+			<div class="mb-20 client_msg" id="client_msg"> 
+			{% for message in messages %}
+				<div {% if message.tags %} class="isa_{{ message.tags }}"{% endif %}>{{ message }}</div>
+			{% endfor %}
+			</div>
 			<div class="mb-20">
-				<div class="fieldLabel">Nexmo API Key<span class="handCursor"></span></div>
+			
+				<div class="fieldLabel">Nexmo Key<span class="handCursor"></span></div>
 				<div>
 					<input id="NKey"  type="text" name="NKey"  value="{{nxmo_conf.NKey}}" class="customTxtBox" />
 				</div>
 			</div>
 
 			<div class="mb-20">
-				<div class="fieldLabel">Nexmo Secret Key<span class="handCursor"></span></div>
+				<div class="fieldLabel">Nexmo Secret<span class="handCursor"></span></div>
 				<div>
 					<input id="NSecret" type="text"  name="NSecret" value="{{nxmo_conf.NSecret}}" class="customTxtBox" />
+					<label for="NSecret" generated="true" class="error" id="NSecret_error"></label>
 					<span style="font-size:1em;display:none;" id="processing">We are validating API...<img src='{% static "nexmo-loader.gif" %}' /></span>
 				</div>
 				
 			</div>
 			
 			<div class="mb-20">
-				<div class="fieldLabel">Nexmo From Number<span class="handCursor"></span></div>
+				<div class="fieldLabel">From Number<span class="handCursor"></span></div>
 				<div>
-					<input type="hidden" value="{{nxmo_conf.NUser}}" id="nexfrom" />
+					<input type="hidden" value="{{nxmo_conf.NexmoFrom}}" id="nexfrom" />
 					<select name="NexmoFrom" id="NexmoFrom" class="customTxtBox">
 						<option value=""> -- Select From Number -- </option>
 					</select>
@@ -44,7 +43,7 @@
 				<div>
 					<input id="NRecv" type="text" name="NRecv" value="{{nxmo_conf.NRecv}}" class="customTxtBox" /> 
 				</div>
-			<div style="color:orange">Type number with country code.eg 1 248 xxxxx</div>
+			<div style="color:orange">Type number with country code.eg +1 XXX XXX XXX</div>
 			</div>
 			
 			
@@ -78,22 +77,69 @@
 		</div>
     </div>
 		</form>
-
 <script>
+	$(function(){ 
+	$.validator.addMethod("checkdef", function(value, element) {
+		 if (/^admin$/.test($.trim(value))) {
+			return false;  // FAIL validation when REGEX matches
+		} else {
+			return true;   // PASS validation otherwise
+		};
+	}, 'Please enter different Usename and Password.');
+		$("form").validate({
+			rules: {
+				NKey: "required",
+				NSecret: "required",
+				NexmoFrom:"required",
+				NRecv:{required:true,minlength: 11},
+				UserName:{
+					required:true,
+					checkdef:true
+				},
+				password:{
+					required:true,
+					checkdef:true
+				}
+			},
+			messages: {
+				NKey: "Please enter the Nexmo Key. ",
+				NSecret: "Please enter the Nexmo Secret.",
+				NexmoFrom:"Please select the From Number.",
+				NRecv:{
+					required:"Please enter the Recipients Number.",
+					required:"Please enter the Recipients Number with country code."
+				},
+				UserName:{
+					required:"Please enter the Username",
+					checkdef:"Please enter different Username than 'admin'."
+				},
+				password:{
+					required:"Please enter the Password",
+					checkdef:"Please enter different Password than 'admin'."
+				}
+			},
+		})
+	});
 	$(document).ready(function(){
-		var api = $('#NKey').val();
-		var secret = $('#NSecret').val();
-		$nexfrom = $('#nexfrom').val();
+		var api = $.trim($('#NKey').val());
+		var secret = $.trim($('#NSecret').val());
+
 		$error = true;
 		$('#NSecret').focusout(function() {
+			if($.trim($('#NSecret').val())!='' && $.trim($('#NKey').val())!=''){
+				ajax_call()
+			}
+		});
+		
+		$('#NKey').focusout(function() {
+			if($.trim($('#NSecret').val())!='' && $.trim($('#NKey').val())!=''){
 				$('#processing').css('display','')
 				ajax_call()
-			});
+			}
 		
-		$("form").submit(function(e){
-			if($error == true) e.preventDefault();
-  		});
-
+		});
+		
+		 
 		fill_dropdown(api, secret);
 	});
 	
@@ -105,31 +151,35 @@
 
 	function ajax_call(){
 		$nexfrom = $('#nexfrom').val()
+		var datahtml = '<option value=""> -- Select a From Number -- </option>'
 		$.ajax({
 				url: '/ajax_validator/',
-			    type: 'post', //this is the default though, you don't actually need to always mention it
+			    type: 'post',
 			    data: $( "form" ).serialize(),
 				success: function(data) {
-					$('#NexmoFrom').html("")
+					$('#NexmoFrom').html(datahtml)
 					var obj = $.parseJSON(data)
 					if (obj.error == 'false'){
 						$error = false;
 						dataArray = obj.html.split(",")
-						data = '<option value=""> -- Select a From Number -- </option>'
 						$.each(dataArray, function(index, value) { 
 							$selected = ''
 							if(value==$nexfrom) $selected = 'selected="selected"'
 							
-							data+='<option value"'+value+'" '+$selected+'>'+value+'</option>'
+							datahtml+='<option value"'+value+'" '+$selected+'>'+value+'</option>'
 						});
-						$('#NexmoFrom').html(data)
+						$('#NexmoFrom').html(datahtml)
 					}else{
+					
 						$error = true;
-						$('#client_msg').html('<div class="isa_error">'+ obj.html+'</div>')
+						d = 'client_msg'
+						if(obj.id) {d = obj.id}
+						$('#' + d ).html('<div class="isa_error">'+ obj.html+'</div>')
+						$('#NexmoFrom').html(datahtml)
 					}
 				},
 				error: function(xhr,status,error) { 
-					$('#NexmoFrom').html("<option disabled selected> -- Select a From Number -- </option>")
+					$('#NexmoFrom').html(data)
 					if($.trim(error)!=""){alert(error)}
 				},
 				
