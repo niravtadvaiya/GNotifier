@@ -81,9 +81,12 @@ if __name__ == '__main__':
 			windows()
 			print "GNotifier alert installed successfully."
 			exit(0)
+			
 		distro = platform.linux_distribution()[0].lower()
 		if os.geteuid() != 0:
-			print "ERROR: This program need 'sudo'"
+			FAIL = '\033[91m'
+			ENDC = '\033[0m'
+			print FAIL + "ERROR: This program need 'sudo'" + ENDC
 			exit(1)
 
 		if distro in ['debian','ubuntu']:
