@@ -35,10 +35,10 @@ def create_startup(osx=''):
         subprocess.call(['sudo chmod +x '+FILE_CREAT],shell=True)
         subprocess.call(['sudo /sbin/chkconfig --add '+FILE_CREAT],shell=True)
         subprocess.call(['sudo /sbin/chkconfig '+str(FILE_CREAT)+' on'],shell=True)
-		if osx == 'ubuntu':
-			subprocess.call(['sudo update-rc.d '+str(FILE_CREAT)+' defaults'],shell=True)
         if osx == 'debian':
             subprocess.call(['sudo update-rc.d '+str(FILE_CREAT)+' enable'],shell=True)
+        if osx == 'ubuntu':
+            subprocess.call(['sudo update-rc.d '+str(FILE_CREAT)+' defaults'],shell=True)
         return True
                 
 def install(cmd,osx=''):
