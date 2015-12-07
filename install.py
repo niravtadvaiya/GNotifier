@@ -2,6 +2,7 @@
 import os
 import platform 
 import subprocess
+from sys import exit
 
 FILE_CREAT = 'start_gn_nexmo'
 def pip_install():
@@ -34,6 +35,8 @@ def create_startup(osx=''):
         subprocess.call(['sudo chmod +x '+FILE_CREAT],shell=True)
         subprocess.call(['sudo /sbin/chkconfig --add '+FILE_CREAT],shell=True)
         subprocess.call(['sudo /sbin/chkconfig '+str(FILE_CREAT)+' on'],shell=True)
+		if osx == 'ubuntu':
+			subprocess.call(['sudo update-rc.d '+str(FILE_CREAT)+' defaults'],shell=True)
         if osx == 'debian':
             subprocess.call(['sudo update-rc.d '+str(FILE_CREAT)+' enable'],shell=True)
         return True
@@ -73,6 +76,9 @@ def windows():
 
 if __name__ == '__main__':
         get_current = os.getcwd()
+		if os.geteuid() != 0:
+			print "This program need 'sudo'"
+			exit(1)
         if platform.system().lower() == "windows":
                 import sys
                 windows()
