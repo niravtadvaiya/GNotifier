@@ -5,7 +5,10 @@ import subprocess
 from sys import exit
 
 FILE_CREAT = 'start_gn_nexmo'
-def pip_install():
+def pip_install(osx=''):
+		if osx == 'red':
+			subprocess.call(['sudo easy_install pip'],shell=True)
+			
         subprocess.call(['sudo pip install django==1.8.5'],shell=True)
         subprocess.call(['sudo pip install nexmo'],shell=True)
         subprocess.call(['sudo pip install httplib2'],shell=True)
@@ -49,7 +52,7 @@ def install(cmd,osx=''):
         linux_cmd = "sudo {0} ".format(cmd)
         subprocess.call([linux_cmd + ' update -y '],shell=True)
         subprocess.call([linux_cmd + ' install -y python-pip '],shell=True)
-        pip_install()
+        pip_install(osx)
         create_startup(osx)
 
 def windows():
@@ -91,7 +94,9 @@ if __name__ == '__main__':
 			ENDC = '\033[0m'
 			print FAIL + "ERROR: This program need 'sudo'" + ENDC
 			exit(1)
-
+		if distro[0:3] == 'red':
+			install('apt-get',distro[0:3])
+			print "GNotifier alert installed successfully."
 		if distro in ['debian','ubuntu']:
 			install('apt-get',distro)
 			print "GNotifier alert installed successfully."
