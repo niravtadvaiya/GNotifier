@@ -38,7 +38,7 @@ def create_startup(osx=''):
 
         if osx == 'debian':
 			os.chdir('/etc/rc3.d')
-			subprocess.call(['ln -s ../init.d/'+str(FILE_CREAT)+' S95'+str(FILE_CREAT)],shell=True)
+			subprocess.call(['sudo ln -s ../init.d/'+str(FILE_CREAT)+' S95'+str(FILE_CREAT)],shell=True)
 
         if osx == 'ubuntu':
             subprocess.call(['sudo update-rc.d '+str(FILE_CREAT)+' defaults'],shell=True)
