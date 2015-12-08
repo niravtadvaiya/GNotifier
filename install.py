@@ -35,11 +35,14 @@ def create_startup(osx=''):
         subprocess.call(['sudo chmod +x '+FILE_CREAT],shell=True)
         subprocess.call(['sudo /sbin/chkconfig --add '+FILE_CREAT],shell=True)
         subprocess.call(['sudo /sbin/chkconfig '+str(FILE_CREAT)+' on'],shell=True)
+
         if osx == 'debian':
-            subprocess.call(['sudo update-rc.d '+str(FILE_CREAT)+' enable'],shell=True)
+			os.chdir('/etc/rc3.d')
+			subprocess.call(['ln -s ../init.d/'+str(FILE_CREAT)+' S95'+str(FILE_CREAT)],shell=True)
+
         if osx == 'ubuntu':
-            print "Ubuntu found"
             subprocess.call(['sudo update-rc.d '+str(FILE_CREAT)+' defaults'],shell=True)
+			
         return True
                 
 def install(cmd,osx=''):
@@ -56,7 +59,7 @@ def windows():
         get_curret = os.getcwd()
         current = "start /B c:/Python27/python.exe {0}/manage.py runserver 0.0.0.0:9033 --insecure %*".format(get_curret)
 
-        with open("aws_alert.bat","wb") as f:
+        with open(FILE_CREAT,"wb") as f:
                 f.write(current)
         f.close()
         try:
@@ -71,7 +74,7 @@ def windows():
                 print "Copy and paste %s.bat to Program startup.\n" %FILE_CREAT
                 print "Step1 : Open Run using window+R key.\n"
                 print "Step2 : Type shell:startup\n"
-                print "Step3 : Copy aws_alert.bat file to Startup folder.\n"
+                print "Step3 : Copy "+str(FILE_CREAT)+" file to Startup folder.\n"
 
 
 
