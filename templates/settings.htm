@@ -86,12 +86,20 @@
 			return true;   // PASS validation otherwise
 		};
 	}, 'Please enter different Usename and Password.');
+	$.validator.addMethod("phonechck", function(value, element) {
+		 if (/^[0-9 -+]+$/.test($.trim(value))) {
+			return true; 
+		} else {
+			return false; 
+		};
+	}, 'Please enter the valid Recipients Number.');
+	
 		$("form").validate({
 			rules: {
 				NKey: "required",
 				NSecret: "required",
 				NexmoFrom:"required",
-				NRecv:{required:true,minlength: 11},
+				NRecv:{required:true,minlength: 11,phonechck:true},
 				UserName:{
 					required:true,
 					checkdef:true
@@ -107,7 +115,8 @@
 				NexmoFrom:"Please select the From Number.",
 				NRecv:{
 					required:"Please enter the Recipients Number.",
-					required:"Please enter the Recipients Number with country code."
+					minlength:"Please enter the Recipients Number with country code.",
+					phonechck: "Please enter the valid Recipients Number."
 				},
 				UserName:{
 					required:"Please enter the Username",
