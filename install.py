@@ -6,8 +6,8 @@ from sys import exit
 
 FILE_CREAT = 'start_gn_nexmo'
 def pip_install(osx=''):
-		if osx == 'red':
-			subprocess.call(['sudo easy_install pip'],shell=True)
+        if osx == 'red':
+           subprocess.call(['sudo easy_install pip'],shell=True)
 			
         subprocess.call(['sudo pip install django==1.8.5'],shell=True)
         subprocess.call(['sudo pip install nexmo'],shell=True)
