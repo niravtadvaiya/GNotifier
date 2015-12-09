@@ -4,12 +4,12 @@ import httplib2
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 http = httplib2.Http()
-#response, GOOGLE_PUBLIC_IP = http.request("http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip", headers={"Metadata-Flavor": "Google"})
+response, GOOGLE_PUBLIC_IP = http.request("http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip", headers={"Metadata-Flavor": "Google"})
 SECRET_KEY = 'ob3+i2$#v1gs9hiy%b@ub9!-pa&-nd0s1kf62t8s(c88m-acpd'
 
-DEBUG = True
+DEBUG = False
 
-#ALLOWED_HOSTS = [GOOGLE_PUBLIC_IP]
+ALLOWED_HOSTS = [GOOGLE_PUBLIC_IP]
 
 
 # Application definition
