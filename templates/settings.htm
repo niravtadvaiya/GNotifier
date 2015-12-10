@@ -136,6 +136,7 @@
 		$error = true;
 		$('#NSecret').focusout(function() {
 			if($.trim($('#NSecret').val())!='' && $.trim($('#NKey').val())!=''){
+	                        $('#processing').css('display','')
 				ajax_call()
 			}
 		});
@@ -169,6 +170,7 @@
 					$('#NexmoFrom').html(datahtml)
 					var obj = $.parseJSON(data)
 					if (obj.error == 'false'){
+                                                $('#client_msg').html('')
 						$error = false;
 						dataArray = obj.html.split(",")
 						$.each(dataArray, function(index, value) { 
