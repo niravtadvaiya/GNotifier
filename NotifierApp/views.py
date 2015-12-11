@@ -15,7 +15,6 @@ import urllib2
 import nexmo
 import json
 import ConfigParser 
-from django import forms
 
 FILE_NAME = settings.BASE_DIR + '/.monitor.conf'
 
@@ -92,9 +91,9 @@ def settings(request):
 		my.close()
 		nxmo_conf = nexmo_config() 
 		messages.success(request,"Configuration Settings saved successfully.")
-		return render_to_response('settings.htm',{'nxmo_conf':nxmo_conf,'form':form},context_instance=RequestContext(request))
+		return render_to_response('settings.htm',{'nxmo_conf':nxmo_conf},context_instance=RequestContext(request))
 	  except Exception as err:
-		messages.error(request,"We are find some errors.")
+		messages.error(request,"We have find some errors.")
 		return render_to_response('settings.htm',{'nxmo_conf':nxmo_conf},context_instance=RequestContext(request))
 
 def config_reader(key):
@@ -173,7 +172,7 @@ def ajax_validator(request):
 			django_html = {'error':'false','html':msisdn}
 			return HttpResponse(json.dumps(django_html))
 		except nexmo.AuthenticationError as err:
-			django_html = {'error':'true','html':"Please enter the authenticated API credentials."}
+			django_html = {'error':'true','html':"Please enter valid Nexmo Key and Secret."}
 			return HttpResponse(json.dumps(django_html))
 		except Exception as err:
 			django_html = {'error':'true','html':str(err)}
