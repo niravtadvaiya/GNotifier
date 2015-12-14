@@ -146,7 +146,7 @@ def login(request):
 			request.session['logged_in']=True
 			return redirect("/settings/")
 		else:
-			messages.error(request,"Please enter correct Username and Password.")
+			messages.error(request,"Please enter valid Username and Password.")
 			return render_to_response('login.htm',{},context_instance=RequestContext(request))
 		
 def logout(request):
