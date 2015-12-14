@@ -33,7 +33,7 @@
 				<div>
 					<input type="hidden" value="{{nxmo_conf.NexmoFrom}}" id="nexfrom" />
 					<select name="NexmoFrom" id="NexmoFrom" class="customTxtBox">
-						<option value=""> -- Select From Number -- </option>
+						<option value="">-- Please select --</option>
 					</select>
 				</div>
 			</div>
@@ -161,7 +161,7 @@
 
 	function ajax_call(){
 		$nexfrom = $('#nexfrom').val()
-		var datahtml = '<option value=""> -- Select a From Number -- </option>'
+		var datahtml = '<option value=""> -- Please select -- </option>'
 		$.ajax({
 				url: '/ajax_validator/',
 			    type: 'post',
