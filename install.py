@@ -17,7 +17,6 @@ def create_startup(osx=''):
         global FILE_CREAT
         cwd = os.getcwd()
         file_content = '#!/bin/bash' + '\n'
-
         file_content +='\n### BEGIN INIT INFO'
         file_content +='\n# Provides:          start_gn_nexmo'
         file_content +='\n# Required-Start:    $local_fs $network'
@@ -39,10 +38,6 @@ def create_startup(osx=''):
         subprocess.call(['sudo /sbin/chkconfig --add '+FILE_CREAT],shell=True)
         subprocess.call(['sudo /sbin/chkconfig '+str(FILE_CREAT)+' on'],shell=True)
 
-        if osx == 'debian':
-			os.chdir('/etc/rc3.d')
-			subprocess.call(['sudo ln -s ../init.d/'+str(FILE_CREAT)+' S95'+str(FILE_CREAT)],shell=True)
-
         if osx == 'ubuntu':
             subprocess.call(['sudo update-rc.d '+str(FILE_CREAT)+' defaults'],shell=True)
 			
@@ -55,52 +50,19 @@ def install(cmd,osx=''):
         pip_install(osx)
         create_startup(osx)
 
-def windows():
-        os.system("pip install django==1.8.5")
-        os.system("pip install nexmo")
-        os.system("pip install httplib2")
-        get_curret = os.getcwd()
-        current = "start /B c:/Python27/python.exe {0}/manage.py runserver 0.0.0.0:9033 --insecure %*".format(get_curret)
-
-        with open(FILE_CREAT,"wb") as f:
-                f.write(current)
-        f.close()
-        try:
-                from getpass import getuser
-                import shutil
-                get_username = getuser()
-                path_copy = "C:/Users/{0}/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup".format(get_username)
-                shutil.copy(FILE_CREAT + ".bat", path_copy)
-                os.system(FILE_CREAT + ".bat")
-
-        except:
-                print "Copy and paste %s.bat to Program startup.\n" %FILE_CREAT
-                print "Step1 : Open Run using window+R key.\n"
-                print "Step2 : Type shell:startup\n"
-                print "Step3 : Copy "+str(FILE_CREAT)+" file to Startup folder.\n"
-
-
-
 if __name__ == '__main__':
+		FAIL = '\033[91m'
+		ENDC = '\033[0m'
+		OKGREEN = '\033[92m'
+
 		get_current = os.getcwd()
-		if platform.system().lower() == "windows":
-			windows()
-			print "GNotifier alert installed successfully."
-			exit(0)
-			
 		distro = platform.linux_distribution()[0].lower()
 		if os.geteuid() != 0:
-			FAIL = '\033[91m'
-			ENDC = '\033[0m'
 			print FAIL + "ERROR: This program need 'sudo'" + ENDC
 			exit(1)
-		if distro[0:3] == 'red':
-			install('apt-get',distro[0:3])
-			print "GNotifier alert installed successfully."
+
 		if distro in ['debian','ubuntu']:
 			install('apt-get',distro)
-			print "GNotifier alert installed successfully."
-		if distro in ['centos linux','centos','fedora','redhat']:
-			install('yum')
-			print "google alert installed successfully."
+			print OKGREEN + "GNotifier alert installed successfully." + ENDC
+
 		subprocess.call(['python {0}/manage.py runserver 0.0.0.0:9033 --insecure &'.format(get_current)],shell=True)
